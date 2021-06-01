@@ -1,0 +1,131 @@
+
+Introduction to Eureka
+----------------------
+One of the main building blocks of a micro-service architecture is service discovery. Spring cloud provides multiple solutions such as Eureka, Zookeeper, Cloud Foundry and Consul to facilitate the process of service discovery. 
+
+Eureka is a REST based service which is primarily used for acquiring information about services that you would want to communicate with. This REST service is also known as Eureka Server. The Services that register in Eureka Server to obtain information about each other are called Eureka Clients. 
+
+Why?
+
+If we need multiple instances then it's impossible to get address of each an every micro-service so we need a program which makes our job easy 
+
+which can take care of above problem so we need not to worry about addressing 
+
+Note:
+1.In Eureka we don't need to register or write port number maually, we just need to use some annotations.
+
+2.If we want to up more instances it will register itself and eureka will know on which port number it is running
+
+3.Similary we don't need a microservice we can stop it and it automatically removed from eureka.
+
+**4.from the above point we understand eureka help us to quickly scale-up,down as needed easily
+
+5. when we add API gateway eureka tells the location of each microservice to API gateway 
+__________________________________________________________________________
+
+Properties:
+
+Discovery
+---------
+server.port=8010
+spring.application.name=discoveryservice
+eureka.client.register-with-eureka=false
+eureka.client.fetch-registry=false
+eureka.instance.preferIpAddress=true
+eureka.client.serviceUrl.defaultZone=http://localhost:8010/eureka
+
+
+User
+-----
+server.port=8020
+spring.application.name=user-ms
+#ureka.client.serviceUrl.defaultZone=http://localhost:8010/eureka
+spring.devtools.remote.restart.enabled=true
+
+
+Spring cloud API Gateway
+------------------------
+
+why?
+
+1. we need to route our request to specific micro-service
+2. spring cloud gateway have inbuilt load balancer it help to maintain load on microservices
+
+
+create project
+--------------
+1. add spring cloud API gateway dependency.
+2. add Spring reactive Web dependency
+3 Discovery client
+
+Spring reactive Web --> because Spring cloud API gateway is design to work with reactive application so it need WebFlux
+
+application.properties
+----------------------
+server.port=8020
+spring.application.name=api-gateway
+eureka.client.serviceUrl.defaultZone=http://localhost:8010/eureka
+
+
+How to configure routing
+------------------------
+1. Automatically
+spring.cloud.gateway.discovery.locator.enabled=true
+This is enable discovery feature
+
+spring.cloud.gateway.discovery.locator.lower-case-service-id=true
+
+Q1 id we have automatic routing then why Manually?
+Ans: if we use manual routing then we will have more granular control and we are able to create custome gateway routes
+
+2. Manually
+
+spring.cloud.gateway.routes[0].id=give id
+spring.cloud.gateway.routes[0].uri=domain name | lb://ms name
+spring.cloud.gateway.routes[0].predicates[0]=Path=give path
+spring.cloud.gateway.routes[0].predicates[1]=Method=GET
+
+
+Load Balancer
+-------------
+eureka.instance.instance-id=${spring.application.name}:${spring.application.instance_id:${random.value}}
+
+To give your instance id:
+1. go to project dir
+2. run maven command
+
+mvn spring-boot:run -Dspring-boot.run.arguments=--spring.application.instance_id=ashwani
+
+
+Communication b/w Microservices
+--------------------------------
+1. synchronous
+2. Asynchronous 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
