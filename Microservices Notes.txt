@@ -94,13 +94,95 @@ To give your instance id:
 1. go to project dir
 2. run maven command
 
-mvn spring-boot:run -Dspring-boot.run.arguments=--spring.application.instance_id=ashwani
+mvn spring-boot:run -Dspring-boot.run.arguments=--spring.application.instance_id=user_instance
 
 
 Communication b/w Microservices
 --------------------------------
 1. synchronous
 2. Asynchronous 
+
+
+Hystrix
+-------
+
+In microservice architecture it is common that microservices communicate each other by sending http resquest.
+And we know that http request can fail and can fail for different reason.
+eg:
+1. destination microservice is down or could not respond 
+
+so our http request turn out of time
+
+now we will learn how we can make this communication fault tolerant
+we will learn feign client with hystrix circuit breaker to use fallback method to prevent  failure when  destination microservice is down.
+
+
+Step to create project with Resilience4J
+------------------------------------------
+
+1.Download Resilience4J lib
+	
+	<dependency>
+			<groupId>io.github.resilience4j</groupId>
+			<artifactId>resilience4j-spring-boot2</artifactId>
+			<version>1.4.0</version>
+	</dependency>
+
+2.add properties in .yml file
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      userService:
+        registerHealthIndicator: true
+        eventConsumerBufferSize: 10
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        failureRateThreshold: 50
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowSize: 10
+        waitDurationInOpenState: 5s
+        slidingWindowType: COUNT_BASED
+
+management:
+  health:
+    circuitbreakers:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always
+
+
+3. put 	@CircuitBreaker(name=USER_SERVICE, fallbackMethod = "orderFallback") on top of method responsible for calling destination microservice
+
+4. create fallback method
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
